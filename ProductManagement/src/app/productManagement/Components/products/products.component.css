@@ -1,0 +1,10 @@
+.products-container {
+    padding: 20px;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  

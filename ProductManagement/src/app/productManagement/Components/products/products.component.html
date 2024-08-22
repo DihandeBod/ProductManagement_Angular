@@ -1,1 +1,51 @@
-<p>products works!</p>
+<div class="products-container">
+    <h1>Products</h1>
+    
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="onAdd()">Add</button>
+    </div>
+    
+    <table mat-table [dataSource]="products" class="mat-elevation-z8">
+      <ng-container matColumnDef="productName">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let product"> {{product.productName}} </td>
+      </ng-container>
+      
+      <!-- Product Description Column -->
+      <ng-container matColumnDef="productDescription">
+        <th mat-header-cell *matHeaderCellDef> Description </th>
+        <td mat-cell *matCellDef="let product"> {{product.productDescription}} </td>
+      </ng-container>
+      
+      <!-- Product Category ID Column -->
+      <ng-container matColumnDef="productCategoryId">
+        <th mat-header-cell *matHeaderCellDef> Category ID </th>
+        <td mat-cell *matCellDef="let product"> {{product.productCategoryId}} </td>
+      </ng-container>
+      
+      <!-- Edit Column -->
+      <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef> Edit </th>
+        <td mat-cell *matCellDef="let product">
+          <button mat-icon-button (click)="onEdit(product)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      
+      <!-- Delete Column -->
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef> Delete </th>
+        <td mat-cell *matCellDef="let product">
+          <button mat-icon-button (click)="onDelete(product)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      
+      <!-- Header and Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  
