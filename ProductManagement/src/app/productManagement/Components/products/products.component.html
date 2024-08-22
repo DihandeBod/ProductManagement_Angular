@@ -1,51 +1,72 @@
 <div class="products-container">
-    <h1>Products</h1>
-    
-    <div class="actions">
-      <button mat-raised-button color="primary" (click)="onAdd()">Add</button>
-    </div>
-    
-    <table mat-table [dataSource]="products" class="mat-elevation-z8">
-      <ng-container matColumnDef="productName">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let product"> {{product.productName}} </td>
-      </ng-container>
-      
-      <!-- Product Description Column -->
-      <ng-container matColumnDef="productDescription">
-        <th mat-header-cell *matHeaderCellDef> Description </th>
-        <td mat-cell *matCellDef="let product"> {{product.productDescription}} </td>
-      </ng-container>
-      
-      <!-- Product Category ID Column -->
-      <ng-container matColumnDef="productCategoryId">
-        <th mat-header-cell *matHeaderCellDef> Category ID </th>
-        <td mat-cell *matCellDef="let product"> {{product.productCategoryId}} </td>
-      </ng-container>
-      
-      <!-- Edit Column -->
-      <ng-container matColumnDef="edit">
-        <th mat-header-cell *matHeaderCellDef> Edit </th>
-        <td mat-cell *matCellDef="let product">
-          <button mat-icon-button (click)="onEdit(product)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      
-      <!-- Delete Column -->
-      <ng-container matColumnDef="delete">
-        <th mat-header-cell *matHeaderCellDef> Delete </th>
-        <td mat-cell *matCellDef="let product">
-          <button mat-icon-button (click)="onDelete(product)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      
-      <!-- Header and Row Definitions -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+  <h1>Products</h1>
+  
+  <div class="actions">
+    <button (click)="openAddModal()">Add</button>
   </div>
   
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.productName }}</td>
+        <td>{{ product.productDescription }}</td>
+        <td>{{ getCategoryName(product.productCategoryId!) }}</td>
+        <td><button (click)="openEditModal(product)">Edit</button></td>
+        <td><button (click)="openDeleteModal(product)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="addProductModal" class="modal" [ngStyle]="{'display': displayStyle}">
+  <div class="modal-content">
+    <span class="close" (click)="closeAddModal()">&times;</span>
+    <h2>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h2>
+    
+    <form #productForm="ngForm">
+      <div class="form-group">
+        <label for="productName">Product Name</label>
+        <input type="text" id="productName" [(ngModel)]="newProduct.productName" name="productName" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="productDescription">Product Description</label>
+        <input type="text" id="productDescription" [(ngModel)]="newProduct.productDescription" name="productDescription" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="productCategoryId">Product Category</label>
+        <select id="productCategoryId" [(ngModel)]="newProduct.productCategoryId" name="productCategoryId" required>
+          <option *ngFor="let category of categories" [value]="category.productCategoryId">
+            {{ category.productCategoryName }}
+          </option> 
+        </select>
+      </div>
+      
+      <button type="submit" (click)="saveProduct()">{{ isEditMode ? 'Update' : 'Save' }}</button>
+      <button type="button" (click)="closeAddModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+ <!-- Delete Confirmation Modal -->
+<div id="deleteProductModal" class="modal" [ngStyle]="{'display': displayDeleteStyle}">
+  <div class="modal-content">
+    <span class="close" (click)="closeDeleteModal()">&times;</span>
+    <h2>Confirm Delete</h2>
+    <p>Are you sure you want to delete this product?</p>
+    <button type="button" (click)="confirmDelete()">Confirm</button>
+    <button type="button" (click)="closeDeleteModal()">Cancel</button>
+  </div>
+</div>

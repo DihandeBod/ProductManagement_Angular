@@ -4,5 +4,5 @@ export class ProductVM{
     productDescription: string | undefined;
     isDeleted: boolean | undefined;
     isApproved: boolean | undefined;
-    productCategory: string | undefined;
+    productCategoryId: number | undefined;
 }

@@ -7,24 +7,56 @@ import { MatTableModule } from '@angular/material/table';
 import { ProductService } from '../../Services/product.service';
 import { Products } from '../../Models/Products';
 import { ProductCategory } from '../../Models/ProductCategory';
-import { error } from 'console';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { ProductVM } from '../../Models/ProductVM';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule],
+  imports: [
+    CommonModule, 
+    MatButtonModule, 
+    MatIconModule, 
+    MatTableModule, 
+    FormsModule, 
+    MatFormFieldModule, 
+    MatIconModule, 
+    MatSelectModule, 
+    MatButtonModule,
+    MatIconModule],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent {
+  // Products
   products: Products[] = [];
-  categories: ProductCategory = new ProductCategory();
+  newProduct: ProductVM = {
+    productId: undefined,
+    productName: '',
+    productDescription: '',
+    isDeleted: false,  // Default to false
+    isApproved: false, // Default to false
+    productCategoryId: undefined
+  };
+  
   product: Products = new Products();
-  displayedColumns: string[] = ['productName', 'productDescription', 'productCategoryId', 'edit', 'delete'];
+
+  // Categories
+  categories: ProductCategory[] = [];
+  
+  // Table and modals
+  displayedColumns: string[] = ['productName', 'productDescription', 'productCategoryName', 'edit', 'delete'];
+  displayStyle: string = "none";
+  displayDeleteStyle: string = "none";
+  isEditMode: boolean = false;
+  productToDelete: Products | null = null;
 
   constructor(private dataService: ProductService) { }
 
   ngOnInit() {
+    this.getAllCategories();
     this.getAllProducts();
   }
 
@@ -39,15 +71,102 @@ export class ProductsComponent {
     );
   }
 
-  onAdd() {
-    // Logic to add a new product
+  getAllCategories(){
+    this.dataService.getCategories().subscribe((result: any) => {
+      this.categories = result;
+    },
+    (error: any) => {
+      console.log(error);
+    })
   }
 
-  onEdit(product: Products) {
-    // Logic to edit a product
+  getCategoryName(categoryId: number): string {
+    const category = this.categories.find(cat => cat.productCategoryId === categoryId);
+    return category?.productCategoryName || 'Unknown';
+  }
+  
+  addProduct(){
+    this.dataService.addProduct(this.newProduct).subscribe((result: any) => {
+
+      this.newProduct.productCategoryId = parseInt(this.newProduct.productCategoryId as any, 10);
+      this.newProduct.isDeleted = false;
+      this.newProduct.isApproved = false;
+
+      console.log("Added");
+      this.closeAddModal();
+    },
+  (error: any) => {
+    console.log("Not added");
+  })
   }
 
-  onDelete(product: Products) {
-    // Logic to delete a product
+  updateProduct() {
+    this.dataService.updateProduct(this.newProduct.productId!, this.newProduct).subscribe(
+      (result: any) => {
+        const index = this.products.findIndex(p => p.productId === this.newProduct.productId);
+        if (index !== -1) {
+          this.products[index] = { ...result };
+        }
+        this.closeAddModal();
+      },
+      (error: any) => console.log("Not updated")
+    );
+  }
+
+  confirmDelete() {
+    if (this.productToDelete) {
+      this.dataService.deleteProduct(this.productToDelete.productId!).subscribe(
+        () => {
+          this.products = this.products.filter(p => p.productId !== this.productToDelete?.productId);
+          this.closeDeleteModal();
+        },
+        (error: any) => console.error("Failed to delete product:", error)
+      );
+    }
+  }
+
+
+  openAddModal() {
+    this.isEditMode = false;
+    this.newProduct = {
+      productId: undefined,
+      productName: '',
+      productDescription: '',
+      isDeleted: false,
+      isApproved: false,
+      productCategoryId: undefined
+    };
+    this.displayStyle = "block";
+  }
+
+  openEditModal(product: Products) {
+    this.isEditMode = true;
+    this.newProduct = { ...product };
+    console.log('Editing Product ID:', product.productId);
+    this.displayStyle = "block";
+  }
+
+  openDeleteModal(product: Products) {
+    this.productToDelete = product;
+    this.displayDeleteStyle = "block";
+  }
+
+  closeDeleteModal() {
+    this.displayDeleteStyle = "none";
+    this.productToDelete = null;
+  }
+  
+
+  closeAddModal() {
+    this.displayStyle = "none";
+  }
+
+  saveProduct() {
+    if (this.isEditMode) {
+      this.updateProduct();
+      location.reload();
+    } else {
+      this.addProduct();
+    }
   }
 }
