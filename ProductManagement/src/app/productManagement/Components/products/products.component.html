@@ -1,9 +1,16 @@
 <div class="products-container">
   <h1>Products</h1>
   
-  <div class="actions">
-    <button (click)="openAddModal()">Add</button>
+  <div class="header-actions">
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchText" placeholder="Search..." (input)="onSearchChange()">
+    </div>
+    <div class="actions">
+      <button class="btn btn-green" (click)="openAddModal()">Add</button>
+    </div>
   </div>
+  
+  
   
   <table>
     <thead>
@@ -16,15 +23,34 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let product of products">
+      <tr *ngFor="let product of paginatedProducts">
         <td>{{ product.productName }}</td>
         <td>{{ product.productDescription }}</td>
         <td>{{ getCategoryName(product.productCategoryId!) }}</td>
-        <td><button (click)="openEditModal(product)">Edit</button></td>
-        <td><button (click)="openDeleteModal(product)">Delete</button></td>
+        <td><button class="btn btn-default" (click)="openEditModal(product)">Edit</button></td>
+        <td><button class="btn btn-default" (click)="openDeleteModal(product)">Delete</button></td>
       </tr>
     </tbody>
   </table>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls">
+    <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
+    <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{currentPage}}</span>
+    <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage * itemsPerPage >= products.length">Next</button>
+    <button (click)="onPageChange((products.length / itemsPerPage))" [disabled]="currentPage * itemsPerPage >= products.length">Last</button>
+  </div>
+
+  <!-- Items Per Page Controls -->
+  <div class="items-per-page-controls">
+    <label for="itemsPerPage">Items per page:</label>
+    <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange(itemsPerPage)">
+      <option [value]="5">5</option>
+      <option [value]="10">10</option>
+      <option [value]="20">20</option>
+    </select>
+  </div>
 </div>
 
 <!-- Add/Edit Modal -->
@@ -33,40 +59,81 @@
     <span class="close" (click)="closeAddModal()">&times;</span>
     <h2>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h2>
     
-    <form #productForm="ngForm">
+    <form #productForm="ngForm" (ngSubmit)="saveProduct()">
       <div class="form-group">
         <label for="productName">Product Name</label>
-        <input type="text" id="productName" [(ngModel)]="newProduct.productName" name="productName" required>
+        <input 
+          type="text" 
+          id="productName" 
+          [(ngModel)]="newProduct.productName" 
+          name="productName" 
+          #productName="ngModel" 
+          required
+          (ngModelChange)="checkFormValidity()">
+        <div *ngIf="productName.invalid && (productName.dirty || productName.touched)" class="validation-error">
+          Product Name is required.
+        </div>
       </div>
       
       <div class="form-group">
         <label for="productDescription">Product Description</label>
-        <input type="text" id="productDescription" [(ngModel)]="newProduct.productDescription" name="productDescription" required>
+        <input 
+          type="text" 
+          id="productDescription" 
+          [(ngModel)]="newProduct.productDescription" 
+          name="productDescription" 
+          #productDescription="ngModel" 
+          required
+          (ngModelChange)="checkFormValidity()">
+        <div *ngIf="productDescription.invalid && (productDescription.dirty || productDescription.touched)" class="validation-error">
+          Product Description is required.
+        </div>
       </div>
       
       <div class="form-group">
         <label for="productCategoryId">Product Category</label>
-        <select id="productCategoryId" [(ngModel)]="newProduct.productCategoryId" name="productCategoryId" required>
+        <select 
+          id="productCategoryId" 
+          [(ngModel)]="newProduct.productCategoryId" 
+          name="productCategoryId" 
+          #productCategoryId="ngModel" 
+          required
+          (ngModelChange)="checkFormValidity()">
+          <option [value]="undefined" disabled>Select a category</option>
           <option *ngFor="let category of categories" [value]="category.productCategoryId">
             {{ category.productCategoryName }}
-          </option> 
+          </option>
         </select>
+        <div *ngIf="productCategoryId.invalid && (productCategoryId.dirty || productCategoryId.touched)" class="validation-error">
+          Product Category is required.
+        </div>
       </div>
       
-      <button type="submit" (click)="saveProduct()">{{ isEditMode ? 'Update' : 'Save' }}</button>
-      <button type="button" (click)="closeAddModal()">Cancel</button>
+      <button 
+        type="submit" 
+        class="btn btn-save" 
+        [disabled]="!isFormValid || (isEditMode && !isFormChanged)" 
+        [ngClass]="{'disabled': !isFormValid || (isEditMode && !isFormChanged)}">
+        {{ isEditMode ? 'Update' : 'Save' }}
+      </button>
+      <button type="button" class="btn btn-cancel" (click)="closeAddModal()">Cancel</button>
     </form>
   </div>
 </div>
 
+
+
+
 <!-- Delete Modal -->
- <!-- Delete Confirmation Modal -->
 <div id="deleteProductModal" class="modal" [ngStyle]="{'display': displayDeleteStyle}">
   <div class="modal-content">
     <span class="close" (click)="closeDeleteModal()">&times;</span>
     <h2>Confirm Delete</h2>
     <p>Are you sure you want to delete this product?</p>
-    <button type="button" (click)="confirmDelete()">Confirm</button>
-    <button type="button" (click)="closeDeleteModal()">Cancel</button>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-save" (click)="confirmDelete()">Confirm</button>
+      <button type="button" class="btn btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+    </div>
   </div>
 </div>
+

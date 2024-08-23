@@ -1,1 +1,66 @@
-<p>approval works!</p>
+<div class="approval-container">
+    <h1>Products Requiring Approval</h1>
+  
+    <!-- Single Search Bar -->
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="searchText" placeholder="Search..." (input)="onSearchChange()">
+    </div>
+  
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Description</th>
+          <th>Category ID</th>
+          <th>Approval</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of paginatedProducts">
+          <td>{{ product.productName }}</td>
+          <td>{{ product.productDescription }}</td>
+          <td>{{ getCategoryName(product.productCategoryId!) }}</td>
+          <td>
+            <button class="approve-btn" (click)="openModal(product.productId!)">Approve</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
+      <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{currentPage}}</span>
+      <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage * itemsPerPage >= filteredProducts.length">Next</button>
+      <button (click)="onPageChange((filteredProducts.length / itemsPerPage))" [disabled]="currentPage * itemsPerPage >= filteredProducts.length">Last</button>
+    </div>
+  
+    <!-- Items Per Page Controls -->
+    <div class="items-per-page-controls">
+      <label for="itemsPerPage">Items per page:</label>
+      <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange(itemsPerPage)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </div>
+  
+    <!-- Approval Confirmation Modal -->
+    <div id="approvalModal" class="modal" [ngClass]="{'show': displayStyle === 'block'}">
+      <div class="modal-content">
+        <span class="close" (click)="closeModal()">&times;</span>
+        <h2>Confirm Approval</h2>
+        <p>Type the word <strong>'Confirm'</strong> to approve this product.</p>
+        <input type="text" [(ngModel)]="confirmationText" placeholder="Type 'Confirm' here">
+        <button 
+          class="confirm-btn" 
+          [disabled]="confirmationText !== 'Confirm'"
+          [ngStyle]="{'background-color': confirmationText === 'Confirm' ? '#007FFF' : 'grey'}"
+          (click)="confirmApproval()">
+          Approve
+        </button>
+      </div>
+    </div>
+  </div>
+  

@@ -1,1 +1,9 @@
-<router-outlet />
+<div class="app-container">
+  <div class="sidenav-container" *ngIf="showSidenav">
+    <app-sidenav></app-sidenav>
+  </div>
+  
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
+</div>
