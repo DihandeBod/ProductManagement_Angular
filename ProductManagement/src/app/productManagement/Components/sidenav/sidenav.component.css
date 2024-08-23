@@ -1,0 +1,27 @@
+.sidenav {
+    width: 250px;
+    height: 100%;
+    background-color: #f1f1f1;
+    padding-top: 20px;
+  }
+  
+  .sidenav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidenav ul li {
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .sidenav ul li a {
+    text-decoration: none;
+    color: #000;
+    display: block;
+  }
+  
+  .sidenav ul li a:hover {
+    background-color: #ddd;
+  }
+  
