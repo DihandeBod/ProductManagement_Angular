@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ProductVM } from '../../Models/ProductVM';
+import { ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from '../../Services/authentication.service';
 
 @Component({
   selector: 'app-products',
@@ -70,9 +72,15 @@ export class ProductsComponent {
   paginatedProducts: Products[] = [];
   Math: any;
 
-  constructor(private dataService: ProductService) {}
+  constructor(private dataService: ProductService, private route: ActivatedRoute, private authService: AuthenticationService) {}
 
   ngOnInit() {
+    if (typeof window !== 'undefined') {
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (code) {
+      this.authService.handleAuthCallback(code);
+      }
+    }
     this.getAllCategories();
     this.getAllProducts();
   }
