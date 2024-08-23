@@ -1,3 +1,40 @@
-<p> This is the login component</p>
-<a href="/products">Products</a>
-<a href="/approval">Approval</a>
+<div class="login-container">
+    <h1>Login</h1>
+  
+    <form (ngSubmit)="onEmailPasswordLogin()">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" [(ngModel)]="email" name="email" required>
+      </div>
+  
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" [(ngModel)]="password" name="password" required>
+      </div>
+  
+      <button type="submit">Login with Email</button>
+    </form>
+  
+    <hr>
+  
+    <button (click)="onLogin()">Login with GitHub</button>
+  </div>
+  
+  <!-- Modal Popup for Password Setup -->
+  <div id="passwordModal" class="modal" *ngIf="showPasswordModal">
+    <div class="modal-content">
+      <h2>Set Up Your Password</h2>
+      <form (ngSubmit)="onSetPassword()">
+        <div class="form-group">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" [(ngModel)]="newPassword" name="newPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password:</label>
+          <input type="password" id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword" required>
+        </div>
+        <button type="submit">Set Password</button>
+      </form>
+    </div>
+  </div>
+  

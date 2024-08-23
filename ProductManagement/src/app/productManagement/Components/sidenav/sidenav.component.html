@@ -1,6 +1,7 @@
 <nav class="sidenav">
-    <ul>
-      <li><a routerLink='/products'>Products</a></li>
-      <li><a routerLink='/approval'>Approval</a></li>
-    </ul>
-  </nav>
+  <ul>
+      <li><a routerLink='/products' routerLinkActive="active">Products</a></li>
+      <li><a routerLink='/approval' routerLinkActive="active">Approval</a></li>
+      <li><a class="logout" (click)="logout()">Logout</a></li>
+  </ul>
+</nav>
