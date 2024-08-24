@@ -29,10 +29,32 @@
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    transition: opacity 0.3s ease;
 }
 
 .approve-btn:hover {
     background-color: #007FFF;
+    opacity: 1;
+}
+
+.switch-btn {
+    background-color: #007FFF;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 20px;
+    opacity: 0.85;
+}
+
+.switch-btn:hover {
+    background-color: #005BBB;
     opacity: 1;
 }
 
@@ -83,6 +105,7 @@
     cursor: pointer;
     border-radius: 4px;
     color: #fff;
+    background-color: #007FFF;
 }
 
 .confirm-btn:disabled {
@@ -97,17 +120,42 @@ input[type="text"] {
     margin-top: 10px;
     margin-bottom: 20px;
     box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .pagination-controls,
 .items-per-page-controls {
-  margin-top: 20px;
-  text-align: center;
+    margin-top: 20px;
+    text-align: center;
 }
 
 .pagination-controls button,
 .items-per-page-controls select {
-  margin: 0 5px;
-  padding: 5px 10px;
-  cursor: pointer;
+    margin: 0 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #ccc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
+
+.pagination-controls button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-controls button:not([disabled]):hover {
+    background-color: #005BBB;
+}
+
+.items-per-page-controls select {
+    padding: 5px;
+    font-size: 14px;
+    margin-left: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+

@@ -9,51 +9,51 @@
       <button class="btn btn-green" (click)="openAddModal()">Add</button>
     </div>
   </div>
-  
-  
-  
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Edit</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let product of paginatedProducts">
-        <td>{{ product.productName }}</td>
-        <td>{{ product.productDescription }}</td>
-        <td>{{ getCategoryName(product.productCategoryId!) }}</td>
-        <td><button class="btn btn-default" (click)="openEditModal(product)">Edit</button></td>
-        <td><button class="btn btn-default" (click)="openDeleteModal(product)">Delete</button></td>
-      </tr>
-    </tbody>
-  </table>
 
-  <!-- Pagination Controls -->
-  <div class="pagination-controls">
-    <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
-    <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
-    <span>Page {{currentPage}}</span>
-    <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage * itemsPerPage >= products.length">Next</button>
-    <button (click)="onPageChange((products.length / itemsPerPage))" [disabled]="currentPage * itemsPerPage >= products.length">Last</button>
+  <!-- Conditional Content -->
+  <div *ngIf="paginatedProducts && paginatedProducts.length > 0; else noProducts">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of paginatedProducts">
+          <td>{{ product.productName }}</td>
+          <td>{{ product.productDescription }}</td>
+          <td>{{ getCategoryName(product.productCategoryId!) }}</td>
+          <td><button class="btn btn-default" (click)="openEditModal(product)">Edit</button></td>
+          <td><button class="btn btn-default" (click)="openDeleteModal(product)">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
+      <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{currentPage}}</span>
+      <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage * itemsPerPage >= products.length">Next</button>
+      <button (click)="onPageChange((products.length / itemsPerPage))" [disabled]="currentPage * itemsPerPage >= products.length">Last</button>
+    </div>
+
+    <!-- Items Per Page Controls -->
+    <div class="items-per-page-controls">
+      <label for="itemsPerPage">Items per page:</label>
+      <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange(itemsPerPage)">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </div>
   </div>
 
-  <!-- Items Per Page Controls -->
-  <div class="items-per-page-controls">
-    <label for="itemsPerPage">Items per page:</label>
-    <select id="itemsPerPage" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange(itemsPerPage)">
-      <option [value]="5">5</option>
-      <option [value]="10">10</option>
-      <option [value]="20">20</option>
-    </select>
-  </div>
-</div>
-
-<!-- Add/Edit Modal -->
+  <!-- Add/Edit Modal -->
 <div id="addProductModal" class="modal" [ngStyle]="{'display': displayStyle}">
   <div class="modal-content">
     <span class="close" (click)="closeAddModal()">&times;</span>
@@ -136,4 +136,12 @@
     </div>
   </div>
 </div>
+
+  <!-- No Products Message -->
+  <ng-template #noProducts>
+    <p>There are no products available.</p>
+  </ng-template>
+</div>
+
+
 
