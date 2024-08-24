@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductCategory } from '../../Models/ProductCategory';
 import { ProductService } from '../../Services/product.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-approval',
@@ -155,6 +156,7 @@ export class ApprovalComponent {
     if (this.confirmationText === 'Confirm') {
       this.dataService.approveProduct(this.prodIdToUpdate).subscribe(
         (result: any) => {
+          Swal.fire("Success", "Product successfully updated", "success");
           console.log('Product approved');
           this.getProductsFromLake(); 
           this.getDeletedProductsFromLake();
