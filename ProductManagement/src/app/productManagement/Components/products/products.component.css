@@ -105,6 +105,11 @@ th, td {
   box-sizing: border-box;
 }
 
+.btn-spacing {
+  margin-right: 10px;
+}
+
+
 .btn {
   padding: 10px 20px;
   border: none;
@@ -148,6 +153,7 @@ th, td {
 
 .btn-cancel {
   background-color: red;
+  opacity: 0.55;
   color: white;
   opacity: 0.75;
 }

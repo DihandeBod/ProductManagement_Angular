@@ -39,8 +39,8 @@ export class ProductsComponent {
     productId: undefined,
     productName: '',
     productDescription: '',
-    isDeleted: false, // Default to false
-    isApproved: false, // Default to false
+    isDeleted: false, 
+    isApproved: false,
     productCategoryId: undefined,
   };
 
@@ -72,13 +72,17 @@ export class ProductsComponent {
   paginatedProducts: Products[] = [];
   Math: any;
 
-  constructor(private dataService: ProductService, private route: ActivatedRoute, private authService: AuthenticationService) {}
+  constructor(
+    private dataService: ProductService,
+    private route: ActivatedRoute,
+    private authService: AuthenticationService
+  ) {}
 
   ngOnInit() {
     if (typeof window !== 'undefined') {
       const code = new URLSearchParams(window.location.search).get('code');
       if (code) {
-      this.authService.handleAuthCallback(code);
+        this.authService.handleAuthCallback(code);
       }
     }
     this.getAllCategories();
@@ -118,37 +122,36 @@ export class ProductsComponent {
   updatePagination() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedProducts = this.products
-      .filter(
-        (product) =>
-          product
-            .productName!.toLowerCase()
-            .includes(this.searchText.toLowerCase()) ||
-          product
-            .productDescription!.toLowerCase()
-            .includes(this.searchText.toLowerCase()) ||
-          this.getCategoryName(product.productCategoryId!)
-            .toLowerCase()
-            .includes(this.searchText.toLowerCase())
-      )
-      .slice(startIndex, endIndex);
+    const filteredProducts = this.products.filter(
+      (product) =>
+        product
+          .productName!.toLowerCase()
+          .includes(this.searchText.toLowerCase()) ||
+        product
+          .productDescription!.toLowerCase()
+          .includes(this.searchText.toLowerCase()) ||
+        this.getCategoryName(product.productCategoryId!)
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase())
+    );
+
+    // Update pagination and handle empty pages
+    if (filteredProducts.length <= startIndex) {
+      this.currentPage = Math.max(1, this.currentPage - 1);
+      this.updatePagination(); 
+    } else {
+      this.paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+    }
   }
 
   addProduct() {
     this.dataService.addProduct(this.newProduct).subscribe(
       (result: any) => {
-        this.newProduct.productCategoryId = parseInt(
-          this.newProduct.productCategoryId as any,
-          10
-        );
-        this.newProduct.isDeleted = false;
-        this.newProduct.isApproved = false;
-
-        console.log('Added');
+        this.getAllProducts();
         this.closeAddModal();
       },
       (error: any) => {
-        console.log('Not added');
+        console.log('Not added', error);
       }
     );
   }
@@ -164,9 +167,10 @@ export class ProductsComponent {
           if (index !== -1) {
             this.products[index] = { ...result };
           }
+          this.getAllProducts();
           this.closeAddModal();
         },
-        (error: any) => console.log('Not updated')
+        (error: any) => console.log('Not updated', error)
       );
   }
 
@@ -177,7 +181,7 @@ export class ProductsComponent {
           this.products = this.products.filter(
             (p) => p.productId !== this.productToDelete?.productId
           );
-          this.getAllProducts();
+          this.updatePagination();
           this.closeDeleteModal();
         },
         (error: any) => console.error('Failed to delete product:', error)
@@ -186,19 +190,18 @@ export class ProductsComponent {
   }
 
   onSearchChange() {
-    this.currentPage = 1; // Reset to first page when searching
+    this.currentPage = 1;
     this.updatePagination();
   }
 
   onPageChange(page: number) {
-    page = Math.ceil(page);
-    this.currentPage = page;
+    this.currentPage = Math.ceil(page);
     this.updatePagination();
   }
 
   onItemsPerPageChange(itemsPerPage: number) {
     this.itemsPerPage = itemsPerPage;
-    this.currentPage = 1; // Reset to first page when items per page changes
+    this.currentPage = 1; 
     this.updatePagination();
   }
 
@@ -218,7 +221,7 @@ export class ProductsComponent {
   openEditModal(product: Products) {
     this.isEditMode = true;
     this.newProduct = { ...product };
-    this.originalProduct = { ...product }; // Store original product to detect changes
+    this.originalProduct = { ...product }; 
     this.isFormChanged = false;
     this.displayStyle = 'block';
     this.checkFormValidity();
@@ -240,19 +243,9 @@ export class ProductsComponent {
 
   saveProduct() {
     if (this.isEditMode) {
-      this.dataService
-        .updateProduct(this.newProduct.productId!, this.newProduct)
-        .subscribe(() => {
-          this.getAllProducts();
-          this.closeAddModal();
-          location.reload();
-        });
+      this.updateProduct();
     } else {
-      this.dataService.addProduct(this.newProduct).subscribe(() => {
-        this.getAllProducts();
-        this.closeAddModal();
-        location.reload();
-      });
+      this.addProduct();
     }
   }
 
@@ -271,5 +264,4 @@ export class ProductsComponent {
       this.isFormChanged = this.isFormValid;
     }
   }
-  
 }

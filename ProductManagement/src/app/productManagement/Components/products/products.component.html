@@ -68,6 +68,7 @@
           [(ngModel)]="newProduct.productName" 
           name="productName" 
           #productName="ngModel" 
+          placeholder="Enter the product name here"
           required
           (ngModelChange)="checkFormValidity()">
         <div *ngIf="productName.invalid && (productName.dirty || productName.touched)" class="validation-error">
@@ -83,6 +84,7 @@
           [(ngModel)]="newProduct.productDescription" 
           name="productDescription" 
           #productDescription="ngModel" 
+          placeholder="Enter the product description here"
           required
           (ngModelChange)="checkFormValidity()">
         <div *ngIf="productDescription.invalid && (productDescription.dirty || productDescription.touched)" class="validation-error">
@@ -111,12 +113,13 @@
       
       <button 
         type="submit" 
-        class="btn btn-save" 
+        class="btn btn-save btn-spacing"
         [disabled]="!isFormValid || (isEditMode && !isFormChanged)" 
         [ngClass]="{'disabled': !isFormValid || (isEditMode && !isFormChanged)}">
         {{ isEditMode ? 'Update' : 'Save' }}
       </button>
-      <button type="button" class="btn btn-cancel" (click)="closeAddModal()">Cancel</button>
+    <button type="button" class="btn btn-cancel" (click)="closeAddModal()">Cancel</button>
+
     </form>
   </div>
 </div>
