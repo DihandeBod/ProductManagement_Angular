@@ -10,19 +10,32 @@ import { Products } from '../Models/Products';
 export class ApprovalService {
 
   private apiUrl = `${environment.baseApiUrl}`;
+  private token: string | null = null; 
+  
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+    this.token = localStorage.getItem('access_token');
+   }
+
+  private setHeaders(): { headers: HttpHeaders } {
+    console.log(this.token);
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      })
+    };
+  }
 
   getAllApprovalProducts() : Observable<Products[]> {
-    return this.httpClient.get<Products[]>(`${this.apiUrl}ProductLake/GetAllProductsFromLake`);
+    return this.httpClient.get<Products[]>(`${this.apiUrl}ProductLake/GetAllProductsFromLake`, this.setHeaders());
   }
 
   approveProduct(id: number) : Observable<Products> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<Products>(`${this.apiUrl}ProductLake/ApproveProductUpdate/${id}`, headers);
+    return this.httpClient.put<Products>(`${this.apiUrl}ProductLake/ApproveProductUpdate/${id}`, {}, this.setHeaders());
   }
 
   getDeletedProducts(): Observable<Products[]>{
-    return this.httpClient.get<Products[]>(`${this.apiUrl}ProductLake/GetDeletedProducts`);
+    return this.httpClient.get<Products[]>(`${this.apiUrl}ProductLake/GetDeletedProducts`, this.setHeaders());
   }
 }

@@ -13,43 +13,55 @@ import { ProductType } from '../Models/ProductType';
 export class ProductService {
 
   private apiUrl = `${environment.baseApiUrl}`;
+  private token: string | null = null; 
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+    this.token = localStorage.getItem('access_token');
+    console.log(this.token);
+   }
+
+   private setHeaders(): { headers: HttpHeaders } {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      })
+    };
+  }
 
   getProducts(): Observable<Products[]> {
-    return this.httpClient.get<Products[]>(`${this.apiUrl}Product/GetAllProducts`);
+    return this.httpClient.get<Products[]>(`${this.apiUrl}Product/GetAllProducts`, this.setHeaders());
   }
 
   getProductById(id: number): Observable<Products>{
-    return this.httpClient.get<Products>(`${this.apiUrl}Product/GetProductById/${id}`);
+    return this.httpClient.get<Products>(`${this.apiUrl}Product/GetProductById/${id}`, this.setHeaders());
   }
 
   addProduct(prod: ProductVM): Observable<ProductVM>{
-    return this.httpClient.post<ProductVM>(`${this.apiUrl}Product/AddProduct`, prod);
+    return this.httpClient.post<ProductVM>(`${this.apiUrl}Product/AddProduct`, prod, this.setHeaders());
   }
 
   updateProduct(id: number, vm: ProductVM): Observable<void> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<void>(`${this.apiUrl}Product/UpdateProduct/${id}`, vm, { headers });
+    return this.httpClient.put<void>(`${this.apiUrl}Product/UpdateProduct/${id}`, vm, this.setHeaders());
   }
 
   deleteProduct(id: number): Observable<void> {
-    return this.httpClient.delete<void>(`${this.apiUrl}Product/DeleteProduct/${id}`);
+    return this.httpClient.delete<void>(`${this.apiUrl}Product/DeleteProduct/${id}`, this.setHeaders());
   }
 
   getCategories(): Observable<ProductCategory[]>{
-    return this.httpClient.get<ProductCategory[]>(`${this.apiUrl}ProductCategory/GetAllProductCategories`);
+    return this.httpClient.get<ProductCategory[]>(`${this.apiUrl}ProductCategory/GetAllProductCategories`, this.setHeaders());
   }
 
   getCategoryById(id: number): Observable<ProductCategory> {
-    return this.httpClient.get<ProductCategory>(`${this.apiUrl}ProductCategory/GetProductCategoryById/${id}`);
+    return this.httpClient.get<ProductCategory>(`${this.apiUrl}ProductCategory/GetProductCategoryById/${id}`, this.setHeaders());
   }
 
   getTypes(): Observable<ProductType[]> {
-    return this.httpClient.get<ProductType[]>(`${this.apiUrl}ProductType/GetAllProductTypes`);
+    return this.httpClient.get<ProductType[]>(`${this.apiUrl}ProductType/GetAllProductTypes`, this.setHeaders());
   }
 
   getTypeById(id: number): Observable<ProductType> {
-    return this.httpClient.get<ProductType>(`${this.apiUrl}ProductType/GetProductTypeById/${id}`);
+    return this.httpClient.get<ProductType>(`${this.apiUrl}ProductType/GetProductTypeById/${id}`, this.setHeaders());
   }
 }

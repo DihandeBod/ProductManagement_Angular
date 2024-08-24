@@ -36,12 +36,12 @@ export class ApprovalComponent {
   displayStyle: string = 'none';
   confirmationText: string = '';
 
-  constructor(private router: Router, private dataService: ApprovalService, private productDataService: ProductService) {}
+  constructor( private router: Router, private dataService: ApprovalService, private productDataService: ProductService ) {}
 
   ngOnInit() {
     this.getAllCategories();
     this.getProductsFromLake();
-    this.getDeletedProductFromLake();
+    this.getDeletedProductsFromLake();
   }
 
   getProductsFromLake() {
@@ -57,32 +57,39 @@ export class ApprovalComponent {
     );
   }
 
-  getDeletedProductFromLake(){
-    this.dataService.getDeletedProducts().subscribe((result:any) => {
-      this.deletedProducts = result;
-      this.filteredDeletedProducts = this.deletedProducts;
-    },
-  (error: any) => {
-    console.log(error);
-  })
+  getDeletedProductsFromLake() {
+    this.dataService.getDeletedProducts().subscribe(
+      (result: any) => {
+        this.deletedProducts = result;
+        this.filteredDeletedProducts = this.deletedProducts;
+        this.updatePagination();
+      },
+      (error: any) => {
+        console.log(error);
+      }
+    );
   }
 
   onSearchChange() {
-    this.currentPage = 1; // Reset to first page when searching
+    this.currentPage = 1; 
     if (this.showDeletedProducts) {
-      this.filteredDeletedProducts = this.deletedProducts.filter(product =>
-        product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
+      this.filteredDeletedProducts = this.deletedProducts.filter((product) =>
+        this.doesProductMatchSearch(product)
       );
     } else {
-      this.filteredProducts = this.products.filter(product =>
-        product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
+      this.filteredProducts = this.products.filter((product) =>
+        this.doesProductMatchSearch(product)
       );
     }
     this.updatePagination();
+  }
+
+  doesProductMatchSearch(product: Products): boolean {
+    return (
+      product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
+    );
   }
 
   getAllCategories() {
@@ -97,29 +104,39 @@ export class ApprovalComponent {
   }
 
   getCategoryName(categoryId: number): string {
-    const category = this.categories.find(cat => cat.productCategoryId === categoryId);
+    const category = this.categories.find((cat) => cat.productCategoryId === categoryId);
     return category?.productCategoryName || 'Unknown';
   }
 
   updatePagination() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
+
     if (this.showDeletedProducts) {
-      this.paginatedDeletedProducts = this.filteredDeletedProducts.slice(startIndex, endIndex);
+      if (this.filteredDeletedProducts.length <= startIndex) {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+        this.updatePagination();
+      } else {
+        this.paginatedDeletedProducts = this.filteredDeletedProducts.slice(startIndex, endIndex);
+      }
     } else {
-      this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+      if (this.filteredProducts.length <= startIndex) {
+        this.currentPage = Math.max(1, this.currentPage - 1);
+        this.updatePagination();
+      } else {
+        this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+      }
     }
   }
 
   onPageChange(page: number) {
-    page = Math.ceil(page);
-    this.currentPage = page;
+    this.currentPage = Math.ceil(page);
     this.updatePagination();
   }
 
   onItemsPerPageChange(itemsPerPage: number) {
     this.itemsPerPage = itemsPerPage;
-    this.currentPage = 1; // Reset to first page when items per page changes
+    this.currentPage = 1; 
     this.updatePagination();
   }
 
@@ -139,7 +156,8 @@ export class ApprovalComponent {
       this.dataService.approveProduct(this.prodIdToUpdate).subscribe(
         (result: any) => {
           console.log('Product approved');
-          this.getProductsFromLake();
+          this.getProductsFromLake(); 
+          this.getDeletedProductsFromLake();
           this.closeModal();
         },
         (error: any) => {
@@ -155,6 +173,7 @@ export class ApprovalComponent {
 
   toggleTableView() {
     this.showDeletedProducts = !this.showDeletedProducts;
-    this.onSearchChange(); // Optional: to reset the search or pagination when switching views
+    this.currentPage = 1; 
+    this.updatePagination(); 
   }
 }

@@ -14,8 +14,27 @@ export class AuthenticationService {
   private clientId = "Ov23liz8SmTtSszQFs1Q";
   private redirectUri = "http://localhost:4200/login";
   private apiUrl = `${environment.baseApiUrl}`;
+  private token: string | null = null; 
 
-  constructor(private httpClient: HttpClient, private router: Router) { }
+  constructor(private httpClient: HttpClient, private router: Router) {
+    this.token = this.getToken();
+   }
+
+   private setHeaders(): { headers: HttpHeaders } {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      })
+    };
+  }
+
+  getToken(): string | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('access_token');
+    }
+    return null; // Or handle this case as necessary
+  }
 
   redirectToGitHubLogin() {
     const state = this.generateRandomState();
@@ -43,15 +62,11 @@ export class AuthenticationService {
   }
 
   loginWithEmailPassword(email: string, password: string) {
-    return this.httpClient.post(`${this.apiUrl}Authentication/LoginWithEmail`, { email, password }, {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return this.httpClient.post(`${this.apiUrl}Authentication/LoginWithEmail`, { email, password }, this.setHeaders());
   }
 
   setPassword(userId: number, password: string) {
-    return this.httpClient.post(`${this.apiUrl}Authentication/SetPassword`, { userId, password }, {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return this.httpClient.post(`${this.apiUrl}Authentication/SetPassword`, { userId, password }, this.setHeaders());
   }
 
 
