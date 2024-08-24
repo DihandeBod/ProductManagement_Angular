@@ -1,7 +1,7 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthenticationService } from '../Services/authentication.service';
-import { pathToFileURL } from 'url';
+import Swal from 'sweetalert2';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthenticationService);
@@ -23,11 +23,23 @@ export const authGuard: CanActivateFn = (route, state) => {
       return true;
     } else {
       // If role doesn't match, redirect to an unauthorized page or login
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have the necessary permissions to access this page.',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
       console.log("Unauthorized Access");
       return false;
     }
   } else {
     // If no token, redirect to login
+    Swal.fire({
+      title: 'Access Denied',
+      text: 'No security token found.',
+      icon: 'warning',
+      confirmButtonText: 'OK'
+    });
     console.log("No token found, redirecting to login");
     router.navigate(['/login']);
     return false;

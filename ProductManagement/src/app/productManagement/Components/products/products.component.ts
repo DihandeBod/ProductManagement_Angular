@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ProductVM } from '../../Models/ProductVM';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../../Services/authentication.service';
+import  Swal  from 'sweetalert2';
 
 @Component({
   selector: 'app-products',
@@ -147,11 +148,22 @@ export class ProductsComponent {
   addProduct() {
     this.dataService.addProduct(this.newProduct).subscribe(
       (result: any) => {
+        Swal.fire("Success", "Product added successfully", "success");
         this.getAllProducts();
         this.closeAddModal();
       },
       (error: any) => {
-        console.log('Not added', error);
+        if(error.status === 403){
+          Swal.fire({
+            title: 'Access Denied',
+            text: 'You do not have the necessary permissions to access this page.',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          });
+        }else{
+          Swal.fire("Failed", "Product failed to add", "error");
+          console.log('Not added', error);
+        }
       }
     );
   }
@@ -167,10 +179,24 @@ export class ProductsComponent {
           if (index !== -1) {
             this.products[index] = { ...result };
           }
+          Swal.fire("Success", "Product updated successfully", "success");
           this.getAllProducts();
           this.closeAddModal();
         },
-        (error: any) => console.log('Not updated', error)
+        (error: any) => 
+        {
+          if(error.status === 403){
+            Swal.fire({
+              title: 'Access Denied',
+              text: 'You do not have the necessary permissions to access this page.',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+          }else{
+            Swal.fire("Failed", "Product failed to update", "error");
+            console.log('Not added', error);
+          }
+        }
       );
   }
 
@@ -181,10 +207,23 @@ export class ProductsComponent {
           this.products = this.products.filter(
             (p) => p.productId !== this.productToDelete?.productId
           );
+          Swal.fire("Success", "Product successfully deleted", "success");
           this.updatePagination();
           this.closeDeleteModal();
         },
-        (error: any) => console.error('Failed to delete product:', error)
+        (error: any) => {
+          if(error.status === 403){
+            Swal.fire({
+              title: 'Access Denied',
+              text: 'You do not have the necessary permissions to access this page.',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            });
+          }else{
+            console.error('Failed to delete product:', error);
+          Swal.fire("Failed", "Product failed to delete", "error");
+          }
+        }
       );
     }
   }
