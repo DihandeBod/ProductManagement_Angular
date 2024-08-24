@@ -21,4 +21,8 @@ export class ApprovalService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.httpClient.put<Products>(`${this.apiUrl}ProductLake/ApproveProductUpdate/${id}`, headers);
   }
+
+  getDeletedProducts(): Observable<Products[]>{
+    return this.httpClient.get<Products[]>(`${this.apiUrl}ProductLake/GetDeletedProducts`);
+  }
 }

@@ -12,13 +12,18 @@ import { ProductService } from '../../Services/product.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './approval.component.html',
-  styleUrl: './approval.component.css',
+  styleUrls: ['./approval.component.css'],
 })
 export class ApprovalComponent {
   products: Products[] = [];
+  deletedProducts: Products[] = [];
   categories: ProductCategory[] = [];
   filteredProducts: Products[] = [];
+  filteredDeletedProducts: Products[] = [];
   paginatedProducts: Products[] = [];
+  paginatedDeletedProducts: Products[] = [];
+  prodIdToUpdate: number = 0;
+  showDeletedProducts = false;
 
   // Search criteria
   searchText: string = '';
@@ -36,6 +41,7 @@ export class ApprovalComponent {
   ngOnInit() {
     this.getAllCategories();
     this.getProductsFromLake();
+    this.getDeletedProductFromLake();
   }
 
   getProductsFromLake() {
@@ -51,23 +57,43 @@ export class ApprovalComponent {
     );
   }
 
+  getDeletedProductFromLake(){
+    this.dataService.getDeletedProducts().subscribe((result:any) => {
+      this.deletedProducts = result;
+      this.filteredDeletedProducts = this.deletedProducts;
+    },
+  (error: any) => {
+    console.log(error);
+  })
+  }
+
   onSearchChange() {
     this.currentPage = 1; // Reset to first page when searching
-    this.filteredProducts = this.products.filter(product =>
-      product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-      product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
-      this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
-    );
+    if (this.showDeletedProducts) {
+      this.filteredDeletedProducts = this.deletedProducts.filter(product =>
+        product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
+      );
+    } else {
+      this.filteredProducts = this.products.filter(product =>
+        product.productName!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        product.productDescription!.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        this.getCategoryName(product.productCategoryId!).toLowerCase().includes(this.searchText.toLowerCase())
+      );
+    }
     this.updatePagination();
   }
 
-  getAllCategories(){
-    this.productDataService.getCategories().subscribe((result: any) => {
-      this.categories = result;
-    },
-    (error: any) => {
-      console.log(error);
-    })
+  getAllCategories() {
+    this.productDataService.getCategories().subscribe(
+      (result: any) => {
+        this.categories = result;
+      },
+      (error: any) => {
+        console.log(error);
+      }
+    );
   }
 
   getCategoryName(categoryId: number): string {
@@ -78,7 +104,11 @@ export class ApprovalComponent {
   updatePagination() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    if (this.showDeletedProducts) {
+      this.paginatedDeletedProducts = this.filteredDeletedProducts.slice(startIndex, endIndex);
+    } else {
+      this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+    }
   }
 
   onPageChange(page: number) {
@@ -95,18 +125,36 @@ export class ApprovalComponent {
 
   openModal(productId: number) {
     this.displayStyle = 'block';
-    console.log('Product ID for approval:', productId);
+    this.prodIdToUpdate = productId;
   }
 
   closeModal() {
     this.displayStyle = 'none';
+    this.prodIdToUpdate = 0;
+    this.confirmationText = '';
   }
 
   confirmApproval() {
     if (this.confirmationText === 'Confirm') {
-      // Handle approval logic here
-      console.log('Product approved');
-      this.closeModal();
+      this.dataService.approveProduct(this.prodIdToUpdate).subscribe(
+        (result: any) => {
+          console.log('Product approved');
+          this.getProductsFromLake();
+          this.closeModal();
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
     }
+  }
+
+  toText(is: boolean): string {
+    return is ? 'True' : 'False';
+  }
+
+  toggleTableView() {
+    this.showDeletedProducts = !this.showDeletedProducts;
+    this.onSearchChange(); // Optional: to reset the search or pagination when switching views
   }
 }
