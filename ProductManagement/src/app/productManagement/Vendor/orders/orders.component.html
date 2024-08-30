@@ -1,0 +1,43 @@
+<div class="order-table">
+    <h2>Orders</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Order Date</th>
+          <th>Order Status</th>
+          <th>Order Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders">
+          <td>{{ order.orderId }}</td>
+          <td>{{ order.orderDate | date: 'yyyy-MM-dd' }}</td>
+          <td>{{ statuses[order.orderStatusId!] }}</td>
+          <td>{{ order.orderTotal | currency:'R':'symbol':'1.2-2' }}</td>
+          <td>
+            <button 
+            *ngIf="order.orderStatusId !== 5"
+            (click)="openConfirmationModal(order.orderId!)">
+            Update status
+          </button>
+
+          <p *ngIf="order.orderStatusId === 5">No action available</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Confirmation Modal -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <span class="close-button" (click)="closeModal()">&times;</span>
+      <h2>Confirm Update</h2>
+      <p>Are you sure you want to update the status of this order?</p>
+      <button (click)="confirmUpdate()">Yes, update</button>
+      <button (click)="closeModal()">Cancel</button>
+    </div>
+  </div>
+  

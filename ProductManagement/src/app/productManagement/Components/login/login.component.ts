@@ -3,6 +3,8 @@ import { AuthenticationService } from '../../Services/authentication.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Register } from '../../Models/Register';
+import { register } from 'module';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +20,13 @@ export class LoginComponent {
   confirmPassword: string = '';
   showPasswordModal: boolean = false;
   userId: number = 0;
+  userRole: string = '';
+
+  // Register
+  showRegisterModal: boolean = false;
+  registerEmail: string = '';
+  registerUsername: string = '';
+  registerPassword: string = '';
 
   constructor(private authService: AuthenticationService, private router: Router){}
 
@@ -34,8 +43,11 @@ export class LoginComponent {
             } else {
               localStorage.setItem('access_token', response.accessToken);
               localStorage.setItem('user_name', response.name);
-              localStorage.setItem('role', response.role);
-              this.router.navigate(['/products']);
+              localStorage.setItem('role', JSON.stringify(response.role.roleName));
+              localStorage.setItem('email', response.email);
+
+              this.userRole = response.role.roleName;
+              this.accessCheck();
             }
           },
           (error: any) => {
@@ -50,7 +62,23 @@ export class LoginComponent {
     this.authService.redirectToGitHubLogin();
   }
 
-  onEmailPasswordLogin(): void {
+  accessCheck(): void {
+    if (this.userRole === 'Product Manager') {
+      this.router.navigate(['/products']);
+    } else if (this.userRole === 'Product Capturer') {
+      this.router.navigate(['/products']);
+    } else if (this.userRole === 'Vendor') {
+      this.router.navigate(['/vendor']);
+    } else if(this.userRole === 'Customer'){
+      this.router.navigate(['/customer']);
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  onEmailPasswordLogin(email: string, password: string): void {
+    this.email = email;
+    this.password = password;
     this.authService.loginWithEmailPassword(this.email, this.password).subscribe(
       (response: any) => {
         console.log(response);
@@ -60,8 +88,12 @@ export class LoginComponent {
         } else {
           localStorage.setItem('access_token', response.accessToken);
           localStorage.setItem('user_name', response.name);
-          localStorage.setItem('role', response.role);
-          this.router.navigate(['/products']);
+          localStorage.setItem('role', JSON.stringify(response.role.roleName));
+          localStorage.setItem('email', response.email);
+
+          this.userRole = response.role.roleName;
+
+          this.accessCheck();
         }
       },
       (error: any) => {
@@ -79,11 +111,37 @@ export class LoginComponent {
     this.authService.setPassword(this.userId, this.newPassword).subscribe(
       () => {
         this.showPasswordModal = false;
-        this.router.navigate(['/products']);
+
+        this.accessCheck();
       },
       (error: any) => {
         console.error('Password setup failed:', error);
       }
     );
+  }
+
+  Register(): void {
+    var registerDetails = {
+      email: this.registerEmail,
+      username: this.registerUsername,
+      password: this.registerPassword
+    };
+    console.log(registerDetails);
+    this.authService.register(registerDetails).subscribe((result: any) => {
+      console.log(result);
+      console.log("Registered");
+      this.onEmailPasswordLogin(this.registerEmail, this.registerPassword);
+    },
+  (error: any) => {
+    console.log("Failed");
+  })
+  }
+
+  onOpenRegisterModal() {
+    this.showRegisterModal = true;
+  }
+
+  closeRegisterModal() {
+    this.showRegisterModal = false;
   }
 }
