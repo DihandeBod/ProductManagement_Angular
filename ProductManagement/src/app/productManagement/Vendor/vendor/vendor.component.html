@@ -1,0 +1,49 @@
+<div class="vendor-products">
+    <h2>Vendor Products</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Quantity On Hand</th>
+          <th>Stock Limit</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td><label>{{ product.productName }}</label></td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.quantityOnHand }}</td>
+          <td>{{ product.stockLimit }}</td>
+          <td>
+            <button (click)="openEditModal(product)">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal" *ngIf="showEditModal">
+    <div class="modal-content">
+      <span class="close-button" (click)="closeEditModal()">&times;</span>
+      <h2>Edit Product</h2>
+      <form (ngSubmit)="onEditProduct(selectedProduct)">
+        <div class="form-group">
+          <label for="editPrice">Price:</label>
+          <input type="number" id="editPrice" [(ngModel)]="selectedProduct.price" name="price" required />
+        </div>
+        <div class="form-group">
+          <label for="editQuantityOnHand">Quantity On Hand:</label>
+          <input type="number" id="editQuantityOnHand" [(ngModel)]="selectedProduct.quantityOnHand" name="quantityOnHand" required />
+        </div>
+        <div class="form-group">
+          <label for="editStockLimit">Stock Limit:</label>
+          <input type="number" id="editStockLimit" [(ngModel)]="selectedProduct.stockLimit" name="stockLimit" required />
+        </div>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </div>
+  

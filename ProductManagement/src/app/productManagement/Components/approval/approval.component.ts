@@ -50,6 +50,7 @@ export class ApprovalComponent {
       (result: any) => {
         this.products = result;
         this.filteredProducts = this.products;
+        this.currentPage = Math.min(this.currentPage, Math.ceil(this.filteredProducts.length / this.itemsPerPage) || 1);
         this.updatePagination();
       },
       (error: any) => {
@@ -57,12 +58,13 @@ export class ApprovalComponent {
       }
     );
   }
-
+  
   getDeletedProductsFromLake() {
     this.dataService.getDeletedProducts().subscribe(
       (result: any) => {
         this.deletedProducts = result;
         this.filteredDeletedProducts = this.deletedProducts;
+        this.currentPage = Math.min(this.currentPage, Math.ceil(this.filteredDeletedProducts.length / this.itemsPerPage) || 1);
         this.updatePagination();
       },
       (error: any) => {
@@ -112,18 +114,18 @@ export class ApprovalComponent {
   updatePagination() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-
+  
     if (this.showDeletedProducts) {
-      if (this.filteredDeletedProducts.length <= startIndex) {
+      if (this.filteredDeletedProducts.length <= startIndex && this.currentPage > 1) {
         this.currentPage = Math.max(1, this.currentPage - 1);
-        this.updatePagination();
+        this.updatePagination(); // Recurse to update the page after adjusting the current page
       } else {
         this.paginatedDeletedProducts = this.filteredDeletedProducts.slice(startIndex, endIndex);
       }
     } else {
-      if (this.filteredProducts.length <= startIndex) {
+      if (this.filteredProducts.length <= startIndex && this.currentPage > 1) {
         this.currentPage = Math.max(1, this.currentPage - 1);
-        this.updatePagination();
+        this.updatePagination(); // Recurse to update the page after adjusting the current page
       } else {
         this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
       }
@@ -156,10 +158,11 @@ export class ApprovalComponent {
     if (this.confirmationText === 'Confirm') {
       this.dataService.approveProduct(this.prodIdToUpdate).subscribe(
         (result: any) => {
-          Swal.fire("Success", "Product successfully updated", "success");
           console.log('Product approved');
-          this.getProductsFromLake(); 
+          this.getProductsFromLake();
           this.getDeletedProductsFromLake();
+          this.updatePagination(); // Make sure pagination is updated
+          Swal.fire("Success", "Product successfully updated", "success");
           this.closeModal();
         },
         (error: any) => {

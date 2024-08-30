@@ -17,7 +17,7 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {
     this.token = localStorage.getItem('access_token');
-    console.log(this.token);
+    // console.log(this.token);
    }
 
    private setHeaders(): { headers: HttpHeaders } {

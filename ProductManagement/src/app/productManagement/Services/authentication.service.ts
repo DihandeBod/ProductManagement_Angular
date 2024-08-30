@@ -3,6 +3,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { environment } from '../../environment';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Register } from '../Models/Register';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +70,10 @@ export class AuthenticationService {
     return this.httpClient.post(`${this.apiUrl}Authentication/SetPassword`, { userId, password }, this.setHeaders());
   }
 
+  register(details: Register){
+    return this.httpClient.post<Register>(`${this.apiUrl}Authentication/Register`, details, this.setHeaders())
+  }
+
 
   logout(){
     localStorage.removeItem('access_token');
@@ -80,4 +85,10 @@ export class AuthenticationService {
   private generateRandomState(): string {
     return Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
   }
+
+
+  getUserByEmail(email: string): Observable<any>{
+    return this.httpClient.get<any>(`${this.apiUrl}Authentication/GetUserById/${email}`);
+  }
+
 }

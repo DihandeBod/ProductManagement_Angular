@@ -1,7 +1,29 @@
-<nav class="sidenav">
+<nav>
   <ul>
-      <li><a routerLink='/products' routerLinkActive="active">Products</a></li>
-      <li><a routerLink='/approval' routerLinkActive="active">Approval</a></li>
-      <li><a class="logout" (click)="logout()">Logout</a></li>
+    <div>
+      <!-- Menu for Product Capturer and Product Manager -->
+      <li *ngIf="userRole === 'Product Manager' || userRole === 'Product Capturer'">
+        <a routerLink="/products">Products</a>
+      </li>
+      <li *ngIf="userRole === 'Product Manager'">
+        <a routerLink="/approval">Approval</a>
+      </li>
+    </div>
+    <div>
+    <!-- Menu for Vendor -->
+    <li *ngIf="userRole === 'Vendor'">
+      <a routerLink="/vendor">Products</a>
+    </li>
+    <li *ngIf="userRole === 'Vendor'">
+      <a routerLink="/orders">Orders</a>
+    </li>
+    <li *ngIf="userRole === 'Customer'">
+      <a routerLink="/customer">Customer</a>
+    </li>
+  </div>
+    <!-- Common Logout Link -->
+    <li>
+      <a (click)="logout()">Logout</a>
+    </li>
   </ul>
 </nav>
